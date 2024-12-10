@@ -4,20 +4,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
 
-#define SERV_PORT 20001
-#define BUFSIZE 1024
 #define SADDR struct sockaddr
 #define SLEN sizeof(struct sockaddr_in)
 
-int main() {
+int main(int argc, char *argv[]) {
+  if (argc < 3) {
+    fprintf(stderr, "Usage: %s <port> <buffer_size>\n", argv[0]);
+    exit(1);
+  }
+
+  int SERV_PORT = atoi(argv[1]);
+  int BUFSIZE = atoi(argv[2]);
+
   int sockfd, n;
   char mesg[BUFSIZE], ipadr[16];
-  struct sockaddr_in servaddr;
-  struct sockaddr_in cliaddr;
+  struct sockaddr_in servaddr, cliaddr;
 
   if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
     perror("socket problem");
@@ -44,7 +47,7 @@ int main() {
     }
     mesg[n] = 0;
 
-    printf("REQUEST %s      FROM %s : %d\n", mesg,
+    printf("REQUEST %s FROM %s : %d\n", mesg,
            inet_ntop(AF_INET, (void *)&cliaddr.sin_addr.s_addr, ipadr, 16),
            ntohs(cliaddr.sin_port));
 
